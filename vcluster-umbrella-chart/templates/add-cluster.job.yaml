@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: add-vcluster-to-argocd
+  annotations:
+    # argocd.argoproj.io/hook: PostSync
+    # argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: argocd-cli
+        image: argoproj/argocd:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          argocd login --core --username vclusteradder --password $PASSWORD
+          argocd cluster add https://kubernetes.default.svc \
+            --name {{ .Release.Name }} \
+            --in-cluster \
+            --namespace {{ .Release.Namespace }} \
+            --service-account vcluster-adder
+        env:
+        - name: ARGOCD_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vclusteradder
+              key: password
+      restartPolicy: OnFailure

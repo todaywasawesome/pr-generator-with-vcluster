@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: preview-vcluster
+  namespace: argocd  
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - pullRequest:
+      github:
+        owner: kostis-codefresh
+        repo: preview-env-source-code
+      requeueAfterSeconds: 180
+  template:
+    metadata:
+      name: '{{.head_short_sha_7}}-vcluster-{{.branch}}'
+    spec:
+      source:
+        repoURL: 'https://charts.loft.sh'
+        targetRevision: 0.20.1
+        chart: vcluster
+        helm:
+          releaseName: '{{.head_short_sha_7}}-vcluster-{{.branch}}'
+          valuesObject:
+            controlPlane:
+              advanced:
+                globalMetadata:
+                  annotations:
+                    branch: '{{.branch_slug}}'
+                    commit: '{{.head_short_sha_7}}'
+                    branch_slug: '{{.branch_slug}}'
+                    head_short_sha_7: '{{.head_short_sha_7}}'
+      project: "default"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'preview-{{.branch_slug}}'
+      syncPolicy:
+        automated:
+          prune: true  
+        syncOptions:
+        - CreateNamespace=true 
