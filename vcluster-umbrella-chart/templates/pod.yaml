@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: add-vcluster-to-argocd-pod
+spec:
+  containers:
+  - name: argocd-cli
+    image: argoproj/argocd:latest
+    command: ["/bin/sh", "-c"]
+    args:
+    - |
+      while true; do
+        sleep 300
+        echo "Alive"
+      done
+    env:
+    - name: ARGOCD_AUTH_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: vclusteradder
+          key: password
+    volumeMounts:
+      - mountPath: "/vcluster/config"
+        name: vcluster-config
+        readOnly: true
+  volumes:
+  - name: vcluster-config
+    secret:
+      secretName: vc-{{ .Release.Name }}

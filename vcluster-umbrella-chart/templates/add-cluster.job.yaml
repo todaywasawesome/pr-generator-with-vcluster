@@ -14,16 +14,27 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          argocd login --core --username vclusteradder --password $PASSWORD
+          argocd login --core --username vclusteradder --password $ARGOCD_AUTH_TOKEN
           argocd cluster add https://kubernetes.default.svc \
             --name {{ .Release.Name }} \
             --in-cluster \
             --namespace {{ .Release.Namespace }} \
-            --service-account vcluster-adder
+            --service-account vcluster-adder \
+            --kubeconfig /vcluster/config \
+            --client-crt /vcluster/client-certificate \
+            --client-crt-key /vcluster/client-key
         env:
         - name: ARGOCD_AUTH_TOKEN
           valueFrom:
             secretKeyRef:
               name: vclusteradder
               key: password
+        volumeMounts:
+          - mountPath: "/vcluster/config"
+            name: vcluster-config
+            readOnly: true
       restartPolicy: OnFailure
+      volumes:
+      - name: vcluster-config
+        secret:
+          secretName: vc-{{ .Release.Name }}
