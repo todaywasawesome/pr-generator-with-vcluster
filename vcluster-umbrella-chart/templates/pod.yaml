@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: argocd-cli
-    image: argoproj/argocd:latest
+    image: quay.io/argoproj/argocli:latest
     command: ["/bin/sh", "-c"]
     args:
     - |

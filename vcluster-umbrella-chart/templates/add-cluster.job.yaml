@@ -10,11 +10,11 @@ spec:
     spec:
       containers:
       - name: argocd-cli
-        image: argoproj/argocd:latest
+        image: quay.io/argoproj/argocli:latest
         command: ["/bin/sh", "-c"]
         args:
+        - argocd login --core --username vclusteradder --password $ARGOCD_AUTH_TOKEN
         - |
-          argocd login --core --username vclusteradder --password $ARGOCD_AUTH_TOKEN
           argocd cluster add https://kubernetes.default.svc \
             --name {{ .Release.Name }} \
             --in-cluster \
