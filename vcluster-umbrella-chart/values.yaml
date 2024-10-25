@@ -1,0 +1,9 @@
+# ArgoCD Configuration
+argocd:
+  # ArgoCD authentication token for the vclusteradder service account
+  authToken: ""
+  
+  # ArgoCD server URL
+  serverUrl: "https://argocd-server.argocd.svc.cluster.local"
+
+# Other configuration values can be added here as needed

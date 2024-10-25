@@ -18,22 +18,24 @@ spec:
           apt-get install -y curl
           curl -L https://github.com/argoproj/argo-cd/releases/download/v2.12.4/argocd-linux-amd64 -o /usr/bin/argocd
           chmod +x /usr/bin/argocd
-        - argocd login --core --username vclusteradder --password $ARGOCD_AUTH_TOKEN
-        - |
-          argocd cluster add https://kubernetes.default.svc \
+          cp /vcluster/config/config /home/ubuntu/kubeconfig.yaml
+          sed -i -e 's/localhost/{{ . Release.Name }}.{{ .Release.Namespace }}.svc/g' /home/ubuntu/kubeconfig.yaml
+          argocd cluster add kubernetes-admin@kubernetes \
             --name {{ .Release.Name }} \
-            --in-cluster \
-            --namespace {{ .Release.Namespace }} \
-            --service-account vcluster-adder \
-            --kubeconfig /vcluster/config \
-            --client-crt /vcluster/client-certificate \
-            --client-crt-key /vcluster/client-key
-        # env:
-        # - name: ARGOCD_AUTH_TOKEN
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: vclusteradder
-        #       key: password
+            --kubeconfig /home/ubuntu/kubeconfig.yaml \
+            --auth-token $ARGOCD_AUTH_TOKEN \
+            --server $ARGOCD_SERVER_URL \
+            --client-crt /vcluster/config/client-certificate \
+            --client-crt-key /vcluster/config/client-key \
+            --yes \
+            --insecure \
+            --upsert \
+            --label cluster=preview
+        env:
+        - name: ARGOCD_AUTH_TOKEN
+          value: {{ .Values.argocd.authToken }}
+        - name: ARGOCD_SERVER_URL
+          value: {{ .Values.argocd.serverUrl }}
         volumeMounts:
           - mountPath: "/vcluster/config"
             name: vcluster-config
