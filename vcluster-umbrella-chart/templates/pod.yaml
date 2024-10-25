@@ -5,9 +5,14 @@ metadata:
 spec:
   containers:
   - name: argocd-cli
-    image: quay.io/argoproj/argocli:latest
+    image: ubuntu
     command: ["/bin/sh", "-c"]
     args:
+    - |
+      apt-get update
+      apt-get install -y curl
+      curl -L https://github.com/argoproj/argo-cd/releases/download/v2.12.4/argocd-linux-amd64 -o /usr/bin/argocd
+      chmod +x /usr/bin/argocd
     - |
       while true; do
         sleep 300
