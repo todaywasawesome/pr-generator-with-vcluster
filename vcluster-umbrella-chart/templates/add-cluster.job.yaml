@@ -19,7 +19,7 @@ spec:
           curl -L https://github.com/argoproj/argo-cd/releases/download/v2.12.4/argocd-linux-amd64 -o /usr/bin/argocd
           chmod +x /usr/bin/argocd
           cp /vcluster/config/config /home/ubuntu/kubeconfig.yaml
-          sed -i -e 's/localhost:8443/{{ .Release.Name }}.{{ .Release.Namespace }}.svc/g' /home/ubuntu/kubeconfig.yaml
+          sed -i -e 's/localhost:8443/{{ .Release.Name }}.{{ .Release.Namespace }}/g' /home/ubuntu/kubeconfig.yaml
           argocd cluster add kubernetes-admin@kubernetes \
             --name {{ .Release.Name }} \
             --kubeconfig /home/ubuntu/kubeconfig.yaml \
