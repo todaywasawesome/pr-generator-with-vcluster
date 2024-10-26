@@ -4,14 +4,16 @@ metadata:
   name: cluster-app-deployment
   namespace: argocd
 spec:
+  goTemplate: true  
+  goTemplateOptions: ["missingkey=error"]
   generators:
-  - clusters: 
+  - clusters:
       selector:
         matchLabels:
-          cluster-type: preview
+          cluster-type: 'preview'
   template:
     metadata:
-      name: 'myapp-{{.branch}}'
+      name: 'myapp-{{.nameNormalized}}'
     spec:
       source:
         repoURL: 'https://github.com/kostis-codefresh/preview-env-manifests.git'
@@ -19,7 +21,7 @@ spec:
         path: kustomize-preview-app/
         kustomize:
           images:
-            - 'docker.io/kostiscodefresh/my-preview-app:{{metadata.annotations.head_short_sha_7}}'        
+            - 'docker.io/kostiscodefresh/my-preview-app:{{index .metadata.annotations "head_short_sha_7"}}'        
           patches:
             - target:
                 kind: Deployment
@@ -29,16 +31,16 @@ spec:
                   path: /spec/template/spec/containers/0/env/0
                   value: 
                     name: GIT_BRANCH
-                    value: '{{metadata.annotations.branch_slug}}' 
+                    value: '{{index .metadata.annotations "branch_slug"}}' 
                 - op: replace
                   path: /spec/template/spec/containers/0/env/1
                   value: 
                     name: GIT_HASH
-                    value: '{{metadata.annotations.head_short_sha_7}}' 
+                    value: '{{index .metadata.annotations "head_short_sha_7"}}' 
       project: "default"
       destination:
         server: '{{.server}}'
-        namespace: 'preview-{{metadata.annotations.branch_slug}}'
+        namespace: 'preview'
       syncPolicy:
         automated:
           prune: true  

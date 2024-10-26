@@ -17,12 +17,17 @@ spec:
       name: '{{.head_short_sha_7}}-vcluster-{{.branch}}'
     spec:
       source:
-        repoURL: 'https://charts.loft.sh'
-        targetRevision: 0.20.1
-        chart: vcluster
+        # repoURL: 'https://charts.loft.sh'
+        # targetRevision: 0.20.1
+        repoURL: 'https://github.com/todaywasawesome/pr-generator-with-vcluster'
+        path: vcluster-umbrella-chart
+        # chart: vcluster
         helm:
           releaseName: '{{.head_short_sha_7}}-vcluster-{{.branch}}'
           valuesObject:
+            argocd:
+              authToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJ2Y2x1c3RlcmFkZGVyOmFwaUtleSIsIm5iZiI6MTcyOTI3MTUzMiwiaWF0IjoxNzI5MjcxNTMyLCJqdGkiOiIzMGUzNGFlOC1mZGFkLTQ3NWMtYTY3MC1lYWU4ZDVmNTgxNmIifQ.KY95NLTfBwcA8-Blsulok20XAArktE6Oyn5UsQ_43zw"
+              serverUrl: "argocd-server.argocd"
             controlPlane:
               advanced:
                 globalMetadata:

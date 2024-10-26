@@ -3,8 +3,8 @@ kind: Job
 metadata:
   name: add-vcluster-to-argocd
   annotations:
-    # argocd.argoproj.io/hook: PostSync
-    # argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
@@ -30,7 +30,9 @@ spec:
             --yes \
             --insecure \
             --upsert \
-            --label cluster=preview
+            --label cluster=preview \
+            --annotation branch_slug={{ branch_slug }} \
+            --annotation head_short_sha_7={{ head_short_sha_7 }}
         env:
         - name: ARGOCD_AUTH_TOKEN
           value: {{ .Values.argocd.authToken }}
