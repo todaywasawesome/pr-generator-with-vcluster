@@ -31,8 +31,8 @@ spec:
             --insecure \
             --upsert \
             --label cluster=preview \
-            --annotation branch_slug={{ branch_slug }} \
-            --annotation head_short_sha_7={{ head_short_sha_7 }}
+            --annotation branch_slug={{ .Values.controlPlane.advanced.globalMetadata.annotations.branch_slug }} \
+            --annotation head_short_sha_7={{ .Values.controlPlane.advanced.globalMetadata.annotations.head_short_sha_7 }}
         env:
         - name: ARGOCD_AUTH_TOKEN
           value: {{ .Values.argocd.authToken }}
@@ -47,3 +47,33 @@ spec:
       - name: vcluster-config
         secret:
           secretName: vc-{{ .Release.Name }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: delete-vcluster-from-argocd
+  annotations:
+    argocd.argoproj.io/hook: PostDelete
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: argocd-cli
+        image: ubuntu
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          apt-get update
+          apt-get install -y curl
+          curl -L https://github.com/argoproj/argo-cd/releases/download/v2.12.4/argocd-linux-amd64 -o /usr/bin/argocd
+          chmod +x /usr/bin/argocd
+          cp /vcluster/config/config /home/ubuntu/kubeconfig.yaml
+          sed -i -e 's/localhost:8443/{{ .Release.Name }}.{{ .Release.Namespace }}/g' /home/ubuntu/kubeconfig.yaml
+          argocd cluster rm {{ .Release.Name }}
+        env:
+        - name: ARGOCD_AUTH_TOKEN
+          value: {{ .Values.argocd.authToken }}
+        - name: ARGOCD_SERVER_URL
+          value: {{ .Values.argocd.serverUrl }}
+      restartPolicy: OnFailure
