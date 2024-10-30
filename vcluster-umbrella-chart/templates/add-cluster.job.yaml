@@ -30,7 +30,7 @@ spec:
             --yes \
             --insecure \
             --upsert \
-            --label cluster=preview \
+            --label cluster-type=preview \
             --annotation branch_slug={{ .Values.controlPlane.advanced.globalMetadata.annotations.branch_slug }} \
             --annotation head_short_sha_7={{ .Values.controlPlane.advanced.globalMetadata.annotations.head_short_sha_7 }}
         env:
